@@ -35,6 +35,7 @@ public class TodoServiceImpl implements TodoService {
     public Long register(TodoDTO dto) {
 
         Todo todo = dtoToEntity(dto);
+        log.info("Saving Todo with dueDate: " + todo.getDueDate()); // 날짜 형식 확인
         Todo result = todoRepository.save(todo);
         return result.getTno();
     }
