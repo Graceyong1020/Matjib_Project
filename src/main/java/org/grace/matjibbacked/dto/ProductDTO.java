@@ -26,7 +26,7 @@ public class ProductDTO { // 식당 조회, 등록
     private List<MultipartFile> files = new ArrayList<>();
     // 조회
     @Builder.Default
-    private List<String> uploadedFileNames = new ArrayList<>();
+    private List<String> uploadFileNames = new ArrayList<>(); // 저장되어 있는 이미지 파일명
 
 
 }

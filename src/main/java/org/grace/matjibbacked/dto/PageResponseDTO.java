@@ -18,12 +18,12 @@ public class PageResponseDTO<E> {
     private int totalCount, prevPage, nextPage, totalPage, current; // 전체 데이터 수, 이전 페이지, 다음 페이지, 전체 페이지 수, 현재 페이지
 
     @Builder(builderMethodName = "withAll")
-    public PageResponseDTO(List<E> dtoList, PageRequestDTO pageRequestDTO, long total){
+    public PageResponseDTO(List<E> dtoList, PageRequestDTO pageRequestDTO, long totalCount){
 
         this.dtoList = dtoList;
         this.pageRequestDTO = pageRequestDTO;
 
-        this.totalCount = (int) total;
+        this.totalCount = (int) totalCount;
 
         //endPage 계산
         int end = (int) (Math.ceil(pageRequestDTO.getPage() / 10.0)) * 10;
