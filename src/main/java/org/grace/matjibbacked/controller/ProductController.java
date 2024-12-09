@@ -60,20 +60,27 @@ public class ProductController {
     public Map<String, Long> register(ProductDTO productDTO) {
 
         List<MultipartFile> files = productDTO.getFiles();
-        List<String> uploadedFileNames = fileUtil.uploadFiles(files);
+        List<String> uploadedFileNames = fileUtil.saveFiles(files);
 
         productDTO.setUploadFileNames(uploadedFileNames);
 
         log.info(uploadedFileNames);
 
+        // 서비스 호출
         Long pno = productService.register(productDTO);
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         return Map.of("result", pno);
 
     }
 
     @GetMapping("/{pno}")
-    public ProductDTO read(@PathVariable("pno") Long pno) {
+    public ProductDTO read(@PathVariable(name = "pno") Long pno) {
         return productService.get(pno);
     }
 
@@ -111,7 +118,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{pno}")
-    public Map<String, String> remove(@PathVariable Long pno) {
+    public Map<String, String> remove(@PathVariable("pno") Long pno) {
 
         //지워야 하는 파일명 가져오기
         List<String> oldFileNames = productService.get(pno).getUploadFileNames();

@@ -69,14 +69,14 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Long register(ProductDTO productDTO) {
         Product product = dtoToEntity(productDTO);
-        Long pno = productRepository.save(product).getPno();
-        return pno;
+        Product result = productRepository.save(product);
+        return result.getPno();
     }
 
     @Override
     public ProductDTO get(Long pno) {
 
-        Optional<Product> result = productRepository.findById(pno);
+        Optional<Product> result = productRepository.selectOne(pno);
         Product product = result.orElseThrow();
 
         return entityToDTO(product);
@@ -99,8 +99,8 @@ public class ProductServiceImpl implements ProductService {
 
         product.clearList();
 
-        if (uploadFileNames != null && !uploadFileNames.isEmpty()) {
-            uploadFileNames.forEach(uploadName -> {
+        if (uploadFileNames != null && uploadFileNames.size() > 0) {
+            uploadFileNames.stream().forEach(uploadName -> {
                 product.addImageString(uploadName);
             });
         }

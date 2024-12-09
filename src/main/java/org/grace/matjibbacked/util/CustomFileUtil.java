@@ -3,7 +3,6 @@ package org.grace.matjibbacked.util;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import net.coobird.thumbnailator.Thumbnailator;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
@@ -32,7 +31,7 @@ public class CustomFileUtil { // 파일 업로드, 다운로드, 삭제를 위�
 
     @PostConstruct // 초기화 메서드
     public void init() { // 폴더 만들어주는 메서드
-        uploadPath = sanitizePath(uploadPath);
+        uploadPath = sanitizePath(uploadPath); // Sanitize the upload path
         File tempFolder = new File(uploadPath);
         if (!tempFolder.exists()) {
             tempFolder.mkdirs();
@@ -46,11 +45,11 @@ public class CustomFileUtil { // 파일 업로드, 다운로드, 삭제를 위�
 
     // sanitizePath 메서드: 파일명에 특수문자가 포함되어 있을 경우 _로 치환
     private String sanitizePath(String path) {
-        return path.replaceAll("[<>:\"/\\|?*]", "_");
+        return path.replaceAll("[<>:\"/\\\\|?*]", "_");
     }
 
     // uploadFiles 메서드
-    public List<String> uploadFiles(List<MultipartFile> files) throws RuntimeException {
+    public List<String> saveFiles(List<MultipartFile> files) throws RuntimeException {
 
         if (files == null || files.size() == 0) {
             return null;
@@ -59,8 +58,10 @@ public class CustomFileUtil { // 파일 업로드, 다운로드, 삭제를 위�
         List<String> uploadNames = new ArrayList<>();
 
         for (MultipartFile file : files) {
-            String sanitizedFileName = sanitizePath(file.getOriginalFilename());
-            String savedName = UUID.randomUUID().toString() + "_" + sanitizedFileName;
+            String originalFileName = file.getOriginalFilename().trim();
+            String sanitizedFileName = sanitizePath(originalFileName); // 파일명에 특수문자가 포함되어 있을 경우 _로 치환
+            String customFileName = "upload" + sanitizedFileName; // Set a custom file name
+            String savedName = UUID.randomUUID().toString() + "_" + customFileName; // uuid로 파일명 변경
 
             Path savePath = Paths.get(uploadPath, savedName);
 
@@ -69,9 +70,9 @@ public class CustomFileUtil { // 파일 업로드, 다운로드, 삭제를 위�
 
                 String contentType = file.getContentType(); // 파일 타입
 
-                if (contentType != null || contentType.startsWith("image")) {
+                if (contentType != null && contentType.startsWith("image")) {
                     Path thumbnailPath = Paths.get(uploadPath, "s_" + savedName); // 썸네일 파일명
-                    Thumbnails.of(savePath.toFile()).size(200, 200).toFile(thumbnailPath.toFile()); // 썸네일 생성
+                    Thumbnails.of(savePath.toFile()).size(400, 400).toFile(thumbnailPath.toFile()); // 썸네일 생성
                 }
 
                 uploadNames.add(savedName); // uuid로 파일명 변경 후 저장
@@ -83,44 +84,9 @@ public class CustomFileUtil { // 파일 업로드, 다운로드, 삭제를 위�
         return uploadNames;
     }
 
-    public List<String> saveFiles(List<MultipartFile> files) throws RuntimeException {
-
-        if (files == null || files.size() == 0) {
-            return null;
-        }
-
-        List<String> uploadNames = new ArrayList<>();
-
-        for (MultipartFile multipartFile : files) {
-
-            String savedName = UUID.randomUUID().toString() + "_" + multipartFile.getOriginalFilename();
-
-            Path savePath = Paths.get(uploadPath, savedName);
-
-            try {
-                Files.copy(multipartFile.getInputStream(), savePath);
-
-                String contentType = multipartFile.getContentType();
-
-                if (contentType != null && contentType.startsWith("image")) { //이미지여부 확인
-
-                    Path thumbnailPath = Paths.get(uploadPath, "s_" + savedName);
-
-                    Thumbnails.of(savePath.toFile())
-                            .size(400, 400)
-                            .toFile(thumbnailPath.toFile());
-                }
-
-                uploadNames.add(savedName);
-            } catch (IOException e) {
-                throw new RuntimeException(e.getMessage());
-            }
-        }//end for
-        return uploadNames;
-    }
-
+    // getFile 메서드
     public ResponseEntity<Resource> getFile(String fileName) {
-        Resource resource = new FileSystemResource(uploadPath + File.separator + fileName);
+        Resource resource = new FileSystemResource(uploadPath + File.separator + sanitizePath(fileName));
 
         if (!resource.isReadable()) {
             resource = new FileSystemResource(uploadPath + File.separator + "default.jpg");
@@ -143,19 +109,17 @@ public class CustomFileUtil { // 파일 업로드, 다운로드, 삭제를 위�
         }
         fileNames.forEach(fileName -> {
             //Thumbnail 파일 삭제
-            String thumbnailFileName = "s_" + fileName;
+            String thumbnailFileName = "s_" + sanitizePath(fileName.trim());
             Path thumbnailPath = Paths.get(uploadPath, thumbnailFileName);
 
-            Path filePath = Paths.get(uploadPath, fileName);
+            Path filePath = Paths.get(uploadPath, sanitizePath(fileName.trim()));
 
             try {
                 Files.deleteIfExists(filePath);
                 Files.deleteIfExists(thumbnailPath);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException(e.getMessage());
             }
-
         });
-
     }
 }
