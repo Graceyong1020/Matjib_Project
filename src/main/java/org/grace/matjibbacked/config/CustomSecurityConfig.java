@@ -3,10 +3,13 @@ package org.grace.matjibbacked.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.grace.matjibbacked.security.filter.JWTCheckFilter;
 import org.grace.matjibbacked.security.handler.APILoginFailHandler;
 import org.grace.matjibbacked.security.handler.APILoginSuccessHandler;
+import org.grace.matjibbacked.security.handler.CustomAccessDeniedHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,6 +17,7 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -23,6 +27,7 @@ import java.util.Arrays;
 @Configuration
 @RequiredArgsConstructor
 @Log4j2
+@EnableMethodSecurity // 메소드 시큐리티 활성화
 public class CustomSecurityConfig {
 
     @Bean
@@ -45,7 +50,12 @@ public class CustomSecurityConfig {
 
         // session 안 만들고 사용
         http.sessionManagement(sessionConfig -> sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
+        // addFilterBefore : UsernamePasswordAuthenticationFilter 전에 JWTCheckFilter를 실행
+        http.addFilterBefore(new JWTCheckFilter(), UsernamePasswordAuthenticationFilter.class);
+        // 접근 권한이 없을 때 처리할 핸들러
+        http.exceptionHandling(config -> {
+            config.accessDeniedHandler(new CustomAccessDeniedHandler());
+        });
 
         return http.build();
     }
