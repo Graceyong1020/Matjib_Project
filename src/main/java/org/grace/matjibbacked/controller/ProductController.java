@@ -52,8 +52,12 @@ public class ProductController {
 
     @GetMapping("/list")
     public PageResponseDTO<ProductDTO> list(PageRequestDTO pageRequestDTO) {
-        return productService.getList(pageRequestDTO);
+        PageResponseDTO<ProductDTO> responseDTO = productService.getList(pageRequestDTO);
+        List<ProductDTO> dtoList = responseDTO.getDtoList();
 
+        log.info("Product DTO List: {}", dtoList);
+
+        return responseDTO;
     }
 
     @PostMapping("/")
@@ -61,6 +65,11 @@ public class ProductController {
 
         List<MultipartFile> files = productDTO.getFiles();
         List<String> uploadedFileNames = fileUtil.saveFiles(files);
+
+        if (uploadedFileNames == null || uploadedFileNames.isEmpty()) {
+            // 파일이 업로드되지 않았을 경우 기본 이미지 설정
+            uploadedFileNames = List.of("default-thumbnail.jpg");
+        }
 
         productDTO.setUploadFileNames(uploadedFileNames);
 
