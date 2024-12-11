@@ -25,6 +25,7 @@ public class APILoginSuccessHandler implements AuthenticationSuccessHandler {
         log.info(authentication);
         log.info("login success");
 
+        // 로그인 성공한 후
         MemberDTO memberDTO = (MemberDTO) authentication.getPrincipal();
 
        Map<String, Object> claims = memberDTO.getClaims();
@@ -32,8 +33,8 @@ public class APILoginSuccessHandler implements AuthenticationSuccessHandler {
        String accessToken = JWTUtil. generateToken(claims, 10); // 지금 사용할 수 있는 시간 10분
        String refreshToken = JWTUtil.generateToken(claims, 60*24); // 토큰 유효시간 24시간
 
-       claims.put("accessToken", "");
-       claims.put("refreshToken", "");
+       claims.put("accessToken", accessToken);
+       claims.put("refreshToken", refreshToken);
 
         Gson gson = new Gson();
 

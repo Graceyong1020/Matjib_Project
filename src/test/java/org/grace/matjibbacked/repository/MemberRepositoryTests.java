@@ -25,7 +25,7 @@ public class MemberRepositoryTests {
         for(int i = 0; i <10; i++) {
 
             Member member = Member.builder()
-                    .email("user" + i + "@aaa.com")
+                    .email("user" + i + "@bbb.com")
                     .pw(passwordEncoder.encode("1111"))
                     .nickname("사용자" + i)
                     .build();
@@ -45,7 +45,7 @@ public class MemberRepositoryTests {
     }
     @Test
     public void testRead() {
-        String email = "user9@aaa.com";
+        String email = "user9@bbb.com";
         Member member = memberRepository.getWithRole(email);
     }
 }
