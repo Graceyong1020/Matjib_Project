@@ -38,6 +38,11 @@ public class JWTCheckFilter extends OncePerRequestFilter {
             return true;
         }
 
+        if(path.startsWith("/api/todo/")){
+            log.info("-------------------------shouldNotFilter api");
+            return true;
+        }
+
 
         return false; // false == check, true == not check
     }
@@ -71,32 +76,49 @@ public class JWTCheckFilter extends OncePerRequestFilter {
             String pw = (String) claims.get("pw");
             String nickname = (String) claims.get("nickname");
             Boolean social = (Boolean) claims.get("social");
-            List<String> roleNames = (List<String>) claims.get("rolenames");
+            List<String> roleNames = (List<String>) claims.get("roleNames");
+
+
+            if (roleNames != null) {
+                roleNames.stream()
+                        .forEach(role -> {
+                            // Process each role
+                        });
+            } else {
+                log.error("roleNames is null");
+                // Handle the case where roleNames is null, e.g., send an error response
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token: roleNames is null");
+                return;
+            }
 
             MemberDTO memberDTO = new MemberDTO(email, pw, nickname, social.booleanValue(), roleNames);
 
-            log.info("---------------------");
+            log.info("-----------------------------------");
             log.info(memberDTO);
             log.info(memberDTO.getAuthorities());
 
-            UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(memberDTO, pw, memberDTO.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken); // spring security에 인증 정보 저장
+            UsernamePasswordAuthenticationToken authenticationToken
+                    = new UsernamePasswordAuthenticationToken(memberDTO, pw, memberDTO.getAuthorities());
+
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
             filterChain.doFilter(request, response);
 
-        } catch (Exception e) {
+        }catch(Exception e){
 
-            log.error("JWT Filter Error" + e.getMessage());
+            log.error("JWT Check Error..............");
             log.error(e.getMessage());
 
             Gson gson = new Gson();
-            String msg = gson.toJson(Map.of("error", "ERROR_ACCESS_TOKEN")); //에러 메시지
+            String msg = gson.toJson(Map.of("error", "ERROR_ACCESS_TOKEN"));
 
             response.setContentType("application/json");
             PrintWriter printWriter = response.getWriter();
             printWriter.println(msg);
             printWriter.close();
-        }
 
+        }
     }
+
+
 }

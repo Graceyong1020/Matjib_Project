@@ -7,6 +7,7 @@ import org.grace.matjibbacked.domain.Product;
 import org.grace.matjibbacked.dto.PageRequestDTO;
 import org.grace.matjibbacked.dto.PageResponseDTO;
 import org.grace.matjibbacked.dto.ProductDTO;
+import org.grace.matjibbacked.dto.TodoDTO;
 import org.grace.matjibbacked.service.ProductService;
 import org.grace.matjibbacked.util.CustomFileUtil;
 import org.springframework.core.io.Resource;
@@ -51,7 +52,7 @@ public class ProductController {
         return fileUtil.getFile(fileName);
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_USER, ROLE_ADMIN')") // 사용자, 관리자 권한
+    /*@PreAuthorize("hasAnyRole('ROLE_USER, ROLE_ADMIN')") // 사용자, 관리자 권한
     @GetMapping("/list")
     public PageResponseDTO<ProductDTO> list(PageRequestDTO pageRequestDTO) {
         PageResponseDTO<ProductDTO> responseDTO = productService.getList(pageRequestDTO);
@@ -60,6 +61,14 @@ public class ProductController {
         log.info("Product DTO List: {}", dtoList);
 
         return responseDTO;
+    }*/
+
+    @GetMapping("/list")
+    public PageResponseDTO<ProductDTO> list(PageRequestDTO pageRequestDTO) {
+
+        log.info(pageRequestDTO);
+
+        return productService.getList(pageRequestDTO);
     }
 
     @PostMapping("/")
