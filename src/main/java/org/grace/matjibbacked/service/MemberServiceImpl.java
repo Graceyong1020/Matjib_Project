@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j2;
 import org.grace.matjibbacked.domain.Member;
 import org.grace.matjibbacked.domain.MemberRole;
 import org.grace.matjibbacked.dto.MemberDTO;
+import org.grace.matjibbacked.dto.MemberModifyDTO;
 import org.grace.matjibbacked.repository.MemberRepository;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -54,6 +55,21 @@ public class MemberServiceImpl implements MemberService {
         MemberDTO memberDTO = entityToDTO(socialMember); //Member 객체를 MemberDTO로 변환
 
         return memberDTO; //MemberDTO 리턴
+
+    }
+
+    @Override
+    public void modifyMember(MemberModifyDTO memberModifyDTO) {
+
+        Optional<Member> result = memberRepository.findById(memberModifyDTO.getEmail());
+        Member member = result.orElseThrow(); //이미 존재하는 사용자이기 때문에 null일 수 없음
+
+        // social 회원이 아님
+        member.changeNickname(memberModifyDTO.getNickname());
+        member.changePw(passwordEncoder.encode(memberModifyDTO.getPw()));
+        member.changeSocial(false);
+
+        memberRepository.save(member);
 
     }
 
