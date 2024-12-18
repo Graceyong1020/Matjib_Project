@@ -13,7 +13,7 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     //특정한 사용자의 모든 장바구니 아이템들을 가져올 경우: input-> 사용자의 이메일, output-> 장바구니 아이템들
 
     @Query("select " +
-            " new org.grace.matjibbacked.dto.CartItemListDTO(ci.cino, ci.qty, p.pno, p.price, pi.fileName) " +
+            " new org.grace.matjibbacked.dto.CartItemListDTO(ci.cino, ci.qty, p.pno, p.pname, p.price, pi.fileName) " +
             " from " +
             " CartItem ci inner join Cart mc on ci.cart = mc " +
             " left join Product p on ci.product = p " +
@@ -35,7 +35,7 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
 
     //장바구니 번호로 모든 장바구니 아이템을 찾는 쿼리
     @Query("select " +
-            " new org.grace.matjibbacked.dto.CartItemListDTO(ci.cino, ci.qty, p.pno, p.price, pi.fileName) " +
+            " new org.grace.matjibbacked.dto.CartItemListDTO(ci.cino, ci.qty, p.pno, p.pname, p.price, pi.fileName) " +
             " from CartItem ci inner join Cart mc on ci.cart = mc" +
             " left join Product p on ci.product = p " +
             " left join p.imageList pi " +

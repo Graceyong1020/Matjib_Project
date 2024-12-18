@@ -51,7 +51,7 @@ public class CartServiceImpl implements CartService{
 
         if(cartItem == null) {
             Product product = Product.builder().pno(pno).build();
-            cartItem = CartItem.builder().cart(cart).product(product).qty(qty).build();
+            cartItem = CartItem.builder().product(product).cart(cart).qty(qty).build();
         } else {
             cartItem.changeQty(qty);
         }

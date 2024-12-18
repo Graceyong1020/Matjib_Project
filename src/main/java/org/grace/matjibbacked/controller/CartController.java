@@ -27,7 +27,7 @@ public class CartController { //jwd 인증 받은 사용자만 접근 가능
         log.info(itemDTO);
 
         if (itemDTO.getQty() <= 0) { //수량이 0이하면 삭제
-            return cartService.remove((itemDTO.getCino())); //장바구니에서 삭제
+            return cartService.remove(itemDTO.getCino()); //장바구니에서 삭제
         }
         return cartService.addOrModify(itemDTO); //장바구니에 추가 또는 수정
     }
