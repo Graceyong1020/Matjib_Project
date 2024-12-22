@@ -63,10 +63,17 @@ public class ProductController {
         return responseDTO;
     }*/
 
+    @PreAuthorize("hasAnyRole('ROLE_USER')") // 사용자 권한
     @GetMapping("/list")
     public PageResponseDTO<ProductDTO> list(PageRequestDTO pageRequestDTO) {
 
         log.info(pageRequestDTO);
+
+        try { // 테스트를 위해 2초 대기
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         return productService.getList(pageRequestDTO);
     }
@@ -101,6 +108,12 @@ public class ProductController {
 
     @GetMapping("/{pno}")
     public ProductDTO read(@PathVariable(name = "pno") Long pno) {
+
+        try { // 테스트를 위해 2초 대기
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         return productService.get(pno);
     }
 
